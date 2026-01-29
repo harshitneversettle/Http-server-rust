@@ -22,11 +22,12 @@ fn main() {
 
 fn handle_client(mut stream: TcpStream) {
     // loop => without loop , i can only send 1 message from client to server , breaks on pressing space , with loop i can keep sending messages
-    loop {
-        let mut buffer = [0u8; 512]; // buffer is just a data/memory for storing the bytes received 
-        let n = stream.read(&mut buffer).unwrap(); // read returns how many bytes i just read 
-        let client_message = String::from_utf8_lossy(&buffer[..n]); // utf is basically for converting u8 assay to string (at a high level)
-        let send = stream.write(b"fuck").unwrap();
-        println!("{:?}", client_message);
-    }
+    // loop {
+    let mut buffer = [0u8; 512]; // buffer is just a data/memory for storing the bytes received 
+    let n = stream.read(&mut buffer).unwrap(); // read returns how many bytes i just read 
+    let client_message = String::from_utf8_lossy(&buffer[..n]); // utf is basically for converting u8 assay to string (at a high level)
+    let response = b"HTTP/1.1 200 OK\r\n\r\n";
+    let _ = stream.write(response);
+    println!("{}", client_message);
+    // }
 }
