@@ -1,1 +1,36 @@
-node_modules 
+# --------------------
+# Node / TypeScript
+# --------------------
+node_modules/
+dist/
+
+# npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# TypeScript
+*.tsbuildinfo
+
+# --------------------
+# Rust / Cargo
+# --------------------
+target/
+Cargo.lock
+
+# --------------------
+# OS / Editor junk
+# --------------------
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+!.vscode/extensions.json
+
+# --------------------
+# Environment files
+# --------------------
+.env
+.env.*
