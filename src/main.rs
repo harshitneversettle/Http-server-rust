@@ -72,7 +72,7 @@ fn handle_client(mut stream: TcpStream) {
         let _ = fs::write(full_path, content);
         response = "HTTP/1.1 201 Created\r\n\r\n".to_string();
         stream.write(response.as_bytes()).unwrap();
-        return;
+            return;
     } else if url_path.starts_with("/echo") {
         let body = url_path.trim_start_matches("/echo/");
         let body_len = body.len();
