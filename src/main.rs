@@ -39,6 +39,7 @@ fn handle_client(mut stream: TcpStream) {
     let req_line_split: Vec<&str> = request_line.split(" ").collect();
     let url_path = req_line_split[1];
     let mut response = String::new();
+    let mut body = String::new();
     // println!("{:?}" , req_line_split) ;
     // println!() ;
     // println!("without body : \n{}" , client_message_without_body) ;
@@ -72,14 +73,15 @@ fn handle_client(mut stream: TcpStream) {
         let _ = fs::write(full_path, content);
         response = "HTTP/1.1 201 Created\r\n\r\n".to_string();
         stream.write(response.as_bytes()).unwrap();
-            return;
+        return;
     } else if url_path.starts_with("/echo") {
-        let body = url_path.trim_start_matches("/echo/");
-        let body_len = body.len();
-        response = format!(
-            "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}",
-            body_len, body
-        );
+        let temp = url_path.trim_start_matches("/echo/");
+        body.push_str(temp);
+        // let body_len = body.len();
+        // response = format!(
+        //     "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}",
+        //     body_len, body
+        // );
     } else if url_path.starts_with("/files") {
         let dir: Vec<String> = env::args().collect();
         let dir_path = dir[2].to_string();
@@ -111,8 +113,8 @@ fn handle_client(mut stream: TcpStream) {
     } else {
         response = "HTTP/1.1 404 Not Found\r\n\r\n".to_string();
     }
-
     for i in headers {
+        // println!("{:?}", headers);
         if i.starts_with("User-Agent:") {
             let readed_header = i.trim_start_matches("User-Agent: ");
             response = format!(
