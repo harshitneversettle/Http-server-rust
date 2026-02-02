@@ -124,23 +124,27 @@ fn handle_client(mut stream: TcpStream) {
             );
         } else if i.starts_with("Accept-Encoding: ") {
             // println!("{:?}", client_message);
-            let encodings = ["gzip"];
+            let valid_encodings = ["gzip"];
             let temp_str = i.trim_start_matches("Accept-Encoding: ");
-            let content_encoding = temp_str;
+            let encoding_split: Vec<&str> = temp_str.split(",").map(|x| x.trim()).collect();
+            // println!("{:?}", encoding_split);
+            // let content_encoding = String::new();
             let body_len = body.len();
-            // println!("{}" , content_encoding) ;
-            if encodings.contains(&content_encoding) {
-                response = format!(
-                    "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\nContent-Encoding: {}\r\n\r\n{}",
-                    body_len, content_encoding, body
-                );
-                break;
-            } else {
-                response = format!(
-                    "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}",
-                    body_len, body
-                );
-                break;
+            for i in valid_encodings {
+                // println!("{:?}" , i ) ;
+                if encoding_split.contains(&i.trim()) {
+                    response = format!(
+                        "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\nContent-Encoding: {}\r\n\r\n{}",
+                        body_len, i, body
+                    );
+                    break;
+                } else {
+                    response = format!(
+                        "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}",
+                        body_len, body
+                    );
+                    break;
+                }
             }
         }
     }
