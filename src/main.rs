@@ -6,7 +6,24 @@ use std::{
     thread,
 };
 
+use flate2::{Compression, write::GzEncoder};
+
 fn main() {
+    // let stri = b"harshi" ;
+    // // let output_buff = Vec::new() ;
+    // let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
+    // match encoder.write_all(stri){
+    //     Ok(_) => {} ,
+    //     Err(_) => {}
+    // } ;
+    // let s = match encoder.finish(){
+    //     Ok(e) => {e} ,
+    //     Err(err)=>{
+    //         println!("{}" , err) ;
+    //         return;
+    //     }
+    // } ;
+    // println!("{:?}" , s) ;
     let listener = TcpListener::bind("127.0.0.1:4221").expect("Could not bind to port 3000");
     // println!("TCP server listening");
     for stream in listener.incoming() {
@@ -43,7 +60,6 @@ fn handle_client(mut stream: TcpStream) {
     // println!("{:?}" , req_line_split) ;
     // println!() ;
     // println!("without body : \n{}" , client_message_without_body) ;
-
     if req_line_split[0] == "POST" {
         let dir: Vec<String> = env::args().collect();
         let dir_path = dir[2].to_string();
@@ -133,10 +149,30 @@ fn handle_client(mut stream: TcpStream) {
             for i in valid_encodings {
                 // println!("{:?}" , i ) ;
                 if encoding_split.contains(&i.trim()) {
+                    // println!("{:?}" , body) ;
+                    let body_buff = body.as_bytes();
+                    let mut encoding = GzEncoder::new(Vec::new(), Compression::default());
+                    match encoding.write_all(&body_buff) {
+                        Ok(_) => {}
+                        Err(_) => {}
+                    }
+                    let compressed_res = match encoding.finish() {
+                        Ok(vec) => vec,
+                        Err(e) => {
+                            println!("{}", e);
+                            return;
+                        }
+                    };
                     response = format!(
-                        "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\nContent-Encoding: {}\r\n\r\n{}",
-                        body_len, i, body
+                        "HTTP/1.1 200 OK\r\nContent-Encoding: {}\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n",
+                        i,
+                        compressed_res.len(),
                     );
+                    let _ = stream.write_all(response.as_bytes());
+                    let _ = stream.write_all(&compressed_res);
+
+                    // writing two times because compressed_res is a vec , abd vec doesnot follow display trait , toh usko :? use krke send krna padta 
+                    // isliye 2 baar write kr diya , first => headers , fir body , beb careful , send bytes 
                     break;
                 } else {
                     response = format!(
