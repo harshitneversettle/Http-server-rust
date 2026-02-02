@@ -122,6 +122,26 @@ fn handle_client(mut stream: TcpStream) {
                 readed_header.len(),
                 readed_header
             );
+        } else if i.starts_with("Accept-Encoding: ") {
+            // println!("{:?}", client_message);
+            let encodings = ["gzip"];
+            let temp_str = i.trim_start_matches("Accept-Encoding: ");
+            let content_encoding = temp_str;
+            let body_len = body.len();
+            // println!("{}" , content_encoding) ;
+            if encodings.contains(&content_encoding) {
+                response = format!(
+                    "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\nContent-Encoding: {}\r\n\r\n{}",
+                    body_len, content_encoding, body
+                );
+                break;
+            } else {
+                response = format!(
+                    "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}",
+                    body_len, body
+                );
+                break;
+            }
         }
     }
     stream.write(response.as_bytes()).unwrap();
